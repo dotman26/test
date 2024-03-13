@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 
+import { ContextApp } from "../../reducers/products.js";
 import Pagination from "../Pagination/Pagination";
 import ProductsFilter from "./ProductsFilter";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Products = ({
-  dispatch,
   title,
   pageLimit,
-  state,
 }) => {
+
+  const { state } = useContext(ContextApp);
   
   return (
     <section className="products px-4 py-5 justify-content-center text-center" style={ {background: '#222'} }>
@@ -23,7 +24,7 @@ const Products = ({
         }
 
         <div className="row w-100">
-          <ProductsFilter dispatch={ dispatch } state={ state } />
+          <ProductsFilter />
         </div>
 
         <div className="row w-100 justify-content-center text-center">
@@ -50,7 +51,7 @@ const Products = ({
 
         </div>
         <div className="row w-100">
-          <Pagination dispatch={ dispatch } state={ state } pageLimit={ pageLimit } />
+          <Pagination pageLimit={ pageLimit } />
         </div>
       </div>
     </section>

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Select from "react-select";
+import { ContextApp } from "../../reducers/products.js";
 
-const ProductsFilter = ({ dispatch, state }) => {
+const ProductsFilter = () => {
+  const { state, dispatch } = useContext(ContextApp);
 
   const [filterParam, setFilterParam] = useState('price');
   const [filterValue, setFilterValue] = useState('');
@@ -52,6 +54,8 @@ const ProductsFilter = ({ dispatch, state }) => {
   const resetFilter = (e) => {
     e.preventDefault();
 
+    setFilterValue('');
+
     if (state.filter.isActive === false && state.filter.value === '') return
 
     dispatch({
@@ -63,8 +67,6 @@ const ProductsFilter = ({ dispatch, state }) => {
       type: 'products/get_filtered_ids.success',
       payload: []
     });
-
-    setFilterValue('');
 
     dispatch({
       type: 'products/filter.change',

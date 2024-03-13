@@ -1,3 +1,7 @@
+import React from "react";
+
+export const ContextApp = React.createContext();
+
 export const initialState = {
     isLoading: false,
     currentPage: 0,

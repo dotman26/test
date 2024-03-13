@@ -1,17 +1,16 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useContext } from "react";
 
 import Products from "../Products/Products";
 
 import { getProductIds, getProductItems, getFillteredIds } from "../../utils/api";
 import { removeDuplicates } from "../../features/products";
-
-import { initialState, productsReducer } from "../../reducers/products.js";
+import { ContextApp } from "../../reducers/products.js";
 
 const Home = () => {
   const pageLimit = 50;
   const title = "Product list";
 
-  const [state, dispatch] = useReducer(productsReducer, initialState);
+  const { state, dispatch } = useContext(ContextApp);
 
   useEffect(() => {
     if (state.productIds.length > 0) return;
@@ -86,9 +85,7 @@ const Home = () => {
   return (
     <>
       <Products
-        dispatch={ dispatch }
         title={ title }
-        state={ state }
         pageLimit={ pageLimit }
       />
     </>

@@ -1,4 +1,10 @@
-const Pagination = ({ dispatch, state, pageLimit }) => {
+import React, { useContext } from "react";
+
+import { ContextApp } from "../../reducers/products.js";
+
+const Pagination = ({ pageLimit }) => {
+    const { state, dispatch } = useContext(ContextApp);
+
     const offset = state.currentPage * pageLimit + pageLimit;
     const idsLength = state.filter.isActive ? state.filteredIds.length : state.productIds.length;
 
