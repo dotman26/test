@@ -6,16 +6,10 @@ import ProductsFilter from "./ProductsFilter";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Products = ({
+  dispatch,
   title,
-  currentPage = 0,
-  setCurrentPage,
-  isLoading = false,
-  productFilter,
-  setProductFilter,
-  items = [],
-  setFilteredIds,
-  idsLength,
-  offset
+  pageLimit,
+  state,
 }) => {
   
   return (
@@ -29,14 +23,14 @@ const Products = ({
         }
 
         <div className="row w-100">
-          <ProductsFilter productFilter={ productFilter } setProductFilter={ setProductFilter } currentPage={ currentPage } setCurrentPage={ setCurrentPage } setFilteredIds={ setFilteredIds } />
+          <ProductsFilter dispatch={ dispatch } state={ state } />
         </div>
 
         <div className="row w-100 justify-content-center text-center">
 
-          {items.length > 0 ? (
+          {state.items.length > 0 ? (
             <>
-            {items.map(({ id, brand, price, product }) => (
+            {state.items.map(({ id, brand, price, product }) => (
               <div key={ id } className="py-3 mx-2 my-2" style={ {background: '#dbdbdb', width: '18%'} }>
                 <div  className="card-body">
                   <h3 className="h5">{ product }</h3>
@@ -47,7 +41,7 @@ const Products = ({
               </div>
             ))}
             </>
-            ) : isLoading ? (
+            ) : state.isLoading ? (
               <div style={ {color: 'white'} }>Loading...</div>
             ) : (
               <div style={ {color: 'white'} }>No items</div>
@@ -56,7 +50,7 @@ const Products = ({
 
         </div>
         <div className="row w-100">
-          <Pagination currentPage={ currentPage } setCurrentPage={ setCurrentPage } idsLength={ idsLength } offset={ offset } />
+          <Pagination dispatch={ dispatch } state={ state } pageLimit={ pageLimit } />
         </div>
       </div>
     </section>

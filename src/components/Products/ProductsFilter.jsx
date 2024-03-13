@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Select from "react-select";
 
-const ProductsFilter = ({ productFilter, setProductFilter, currentPage, setCurrentPage, setFilteredIds }) => {
+const ProductsFilter = ({ dispatch, state }) => {
 
   const [filterParam, setFilterParam] = useState('price');
   const [filterValue, setFilterValue] = useState('');
@@ -24,38 +24,60 @@ const ProductsFilter = ({ productFilter, setProductFilter, currentPage, setCurre
 
   const handleFilter = (e) => {
     e.preventDefault();
-    
-    if (productFilter.value !== filterValue || productFilter.param !== filterParam) {
-      setCurrentPage(0);
-      setFilteredIds([]);
+
+    if (state.filter.value != filterValue || state.filter.param !== filterParam) {
+      dispatch({
+        type: 'products/change_page',
+        currentPage: 0
+      });
+
+      dispatch({
+        type: 'products/get_filtered_ids.success',
+        payload: []
+      });
+    } else {
+      if (state.filter.isActive === true) return
     }
 
-    const params = {
-      isActive: true,
-      param: filterParam || productFilter.param,
-      value: filterParam == 'price' && filterValue ? parseFloat(filterValue) : filterValue
-    }
-
-    setProductFilter(params);
+    dispatch({
+      type: 'products/filter.change',
+      payload: {
+        isActive: true,
+        param: filterParam || state.filter.param,
+        value: filterParam === 'price' && filterValue ? parseFloat(filterValue) : filterValue
+      }
+    });
   };
 
   const resetFilter = (e) => {
     e.preventDefault();
 
-    const params = {
-      isActive: false,
-      param: productFilter.param,
-      value: ''
-    };
+    if (state.filter.isActive === false && state.filter.value === '') return
 
-    setCurrentPage(0);
+    dispatch({
+      type: 'products/change_page',
+      currentPage: 0
+    });
+
+    dispatch({
+      type: 'products/get_filtered_ids.success',
+      payload: []
+    });
+
     setFilterValue('');
-    setFilteredIds([]);
-    setProductFilter(params);
+
+    dispatch({
+      type: 'products/filter.change',
+      payload: {
+        isActive: false,
+        param: state.filter.param,
+        value: ''
+      }
+    });
   };
 
   return (
-    <div class="container">
+    <div className="container">
     <form className="row g-3 justify-content-center text-center">
       <div className="col-auto">
         <Select onChange={ handleChangeSelect } options={ selectOptions } defaultValue={ selectOptions[1] } />

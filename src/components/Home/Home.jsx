@@ -1,91 +1,95 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer } from "react";
 
 import Products from "../Products/Products";
 
 import { getProductIds, getProductItems, getFillteredIds } from "../../utils/api";
 import { removeDuplicates } from "../../features/products";
 
+import { initialState, productsReducer } from "../../reducers/products.js";
+
 const Home = () => {
   const pageLimit = 50;
   const title = "Product list";
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const [productIds, setProductIds] = useState([]);
-  const [filteredIds, setFilteredIds] = useState([]);
-  const [productItems, setProductItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const filterInitialState = {
-    isActive: false,
-    param: 'price',
-    value: ''
-  }
-
-  const [productFilter, setProductFilter] = useState(filterInitialState);
+  const [state, dispatch] = useReducer(productsReducer, initialState);
 
   useEffect(() => {
-    if (productIds.length > 0) return;
+    if (state.productIds.length > 0) return;
 
-    setIsLoading(true);
+    dispatch({type: 'products/loading_start'});
+
     getProductIds()
       .then((res) => {
         if (res.data?.result) {
-          setProductIds([...new Set(res.data.result)])
+          dispatch({
+            type: 'products/get_ids.success',
+            payload: [...new Set(res.data.result)]
+          });
         }
       });
   }, []);
 
   useEffect(() => {
-    if (!productFilter.isActive) return;
-    
-    setIsLoading(true);
+    if (!state.filter.isActive) return;
 
-    getFillteredIds(productFilter.param, productFilter.value)
+    dispatch({type: 'products/loading_start'});
+
+    getFillteredIds(state.filter.param, state.filter.value)
       .then((res) => {
         if (res.data?.result) {
-          setFilteredIds([...new Set(res.data.result)])
+          dispatch({
+            type: 'products/get_filtered_ids.success',
+            payload: [...new Set(res.data.result)]
+          });
         }
       });
-  }, [productFilter]);
+  }, [state.filter]);
 
   useEffect(() => {
-    if ((productIds.length < 1 && !productFilter.isActive)
-      || (filteredIds.length < 1 && productFilter.isActive)) {
-        setProductItems([]);
-        setIsLoading(false);
+    if ((state.productIds.length < 1 && !state.filter.isActive)
+      || (state.filteredIds.length < 1 && state.filter.isActive)) {
+        dispatch({
+          type: 'products/get_items.success',
+          payload: []
+        });
+
+        dispatch({type: 'products/loading_end'});
+
         return;
     }
       
-    setIsLoading(true);
+    dispatch({type: 'products/loading_start'});
 
-    let offsetStart = currentPage * pageLimit;
-    let offsetEnd = offsetStart + pageLimit;
+    const offsetStart = state.currentPage * pageLimit;
+    const offsetEnd = offsetStart + pageLimit;
 
-    let slicedIds = productFilter.isActive ? filteredIds.slice(offsetStart, offsetEnd) : productIds.slice(offsetStart, offsetEnd);
+    const slicedIds = state.filter.isActive ? state.filteredIds.slice(offsetStart, offsetEnd) : state.productIds.slice(offsetStart, offsetEnd);
 
     getProductItems(slicedIds)
       .then((res) => {
         if (res.data?.result) {
-          let items = removeDuplicates(res.data.result, 'id');
-          setProductItems(items);
-          setIsLoading(false);
+          const items = removeDuplicates(res.data.result, 'id');
+
+          dispatch({
+            type: 'products/get_items.success',
+            payload: items
+          });
+
+          dispatch({type: 'products/loading_end'});
         }
+      })
+      .catch((error) => {
+        dispatch({type: 'products/loading_end'});
       });
-  }, [productIds, filteredIds, currentPage, productFilter]);
+  }, [state.productIds, state.filteredIds, state.currentPage, state.filter]);
 
   return (
     <>
       <Products
-        items={ productItems }
+        dispatch={ dispatch }
         title={ title }
-        isLoading={ isLoading }
-        currentPage={ currentPage }
-        setCurrentPage={ setCurrentPage }
-        productFilter={ productFilter }
-        setProductFilter={ setProductFilter }
-        setFilteredIds={ setFilteredIds }
-        offset={ currentPage * pageLimit + pageLimit }
-        idsLength={ productFilter.isActive ? filteredIds.length : productIds.length }
+        state={ state }
+        pageLimit={ pageLimit }
       />
     </>
   );

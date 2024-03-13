@@ -6,7 +6,6 @@ var dateUtc = date.getUTCFullYear().toString() + (date.getUTCMonth() + 1).toStri
 
 //dateUtc = new Date().toISOString().slice(0, 10).replace(/-/g, '')
 
-const pageLimit = 50;
 const apiUrl = 'http://api.valantis.store:40000/';
 const apiPassword = 'Valantis';
 
